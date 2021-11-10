@@ -21,6 +21,7 @@ client.connect((err) => {
   const userCollection = client.db("samsung_bd").collection("users");
   const orderCollection = client.db("samsung_bd").collection("orders");
   const productCollection = client.db("samsung_bd").collection("products");
+  const reviewCollection = client.db("samsung_bd").collection("reviews");
 
   //   Users
   app.get("/users", async (req, res) => {
@@ -48,13 +49,32 @@ client.connect((err) => {
 
   app.delete("/users/:id", async (req, res) => {
     const id = req.params.id;
-    console.log(id);
     const query = { _id: ObjectId(id) };
     const result = await userCollection.deleteOne(query);
     res.json(result);
   });
 
   //   Orders
+  app.put("/orders", async (req, res) => {
+    const order = req.body;
+    const filter = { item: order.item };
+    const options = { upsert: true };
+    const updateDoc = { $set: order };
+    const result = await orderCollection.updateOne(filter, updateDoc, options);
+    res.json(result);
+  });
+
+  app.get("/orders", async (req, res) => {
+    const result = await orderCollection.find({}).toArray();
+    res.send(result);
+  });
+
+  app.delete("/orders/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const result = await orderCollection.deleteOne(query);
+    res.json(result);
+  });
 
   //   Products
   app.get("/products", async (req, res) => {
@@ -79,6 +99,21 @@ client.connect((err) => {
       updateDoc,
       options
     );
+    res.json(result);
+  });
+
+  //   Reviews
+  app.get("/reviews", async (req, res) => {
+    const result = await reviewCollection.find({}).toArray();
+    res.send(result);
+  });
+
+  app.put("/reviews", async (req, res) => {
+    const review = req.body;
+    const filter = { email: review.email };
+    const options = { upsert: true };
+    const updateDoc = { $set: review };
+    const result = await reviewCollection.updateOne(filter, updateDoc, options);
     res.json(result);
   });
 
