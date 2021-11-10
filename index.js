@@ -55,9 +55,17 @@ client.connect((err) => {
   });
 
   //   Orders
+  // app.post("/orders", async (req, res) => {
+  //   const order = req.body;
+  //   const result = await orderCollection.insertOne(order);
+  //   res.json(result);
+  // });
   app.put("/orders", async (req, res) => {
     const order = req.body;
     const filter = { item: order.item };
+    if (filter.item === order.item) {
+      order.count += 1;
+    }
     const options = { upsert: true };
     const updateDoc = { $set: order };
     const result = await orderCollection.updateOne(filter, updateDoc, options);
@@ -66,6 +74,14 @@ client.connect((err) => {
 
   app.get("/orders", async (req, res) => {
     const result = await orderCollection.find({}).toArray();
+    res.send(result);
+  });
+
+  app.get("/orders/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { itemid: id };
+    // console.log(query);
+    const result = await orderCollection.findOne(query);
     res.send(result);
   });
 
@@ -90,10 +106,10 @@ client.connect((err) => {
   });
 
   app.put("/products", async (req, res) => {
-    const user = req.body;
-    const filter = { email: user.email };
+    const item = req.body;
+    const filter = { name: item.name };
     const options = { upsert: true };
-    const updateDoc = { $set: user };
+    const updateDoc = { $set: item };
     const result = await productCollection.updateOne(
       filter,
       updateDoc,
