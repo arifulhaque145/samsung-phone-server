@@ -29,6 +29,13 @@ client.connect((err) => {
     res.send(result);
   });
 
+  app.get("/users/:uid", async (req, res) => {
+    const id = req.params.uid;
+    const query = { uid: id };
+    const result = await userCollection.findOne(query);
+    res.send(result);
+  });
+
   app.put("/users", async (req, res) => {
     const user = req.body;
     const filter = { email: user.email };
@@ -55,21 +62,27 @@ client.connect((err) => {
   });
 
   //   Orders
-  // app.post("/orders", async (req, res) => {
-  //   const order = req.body;
-  //   const result = await orderCollection.insertOne(order);
-  //   res.json(result);
-  // });
-  app.put("/orders", async (req, res) => {
+  app.post("/orders", async (req, res) => {
     const order = req.body;
-    const filter = { item: order.item };
-    if (filter.item === order.item) {
-      order.count += 1;
-    }
+    const result = await orderCollection.insertOne(order);
+    res.json(result);
+  });
+
+  app.put("/orders/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = req.body;
+    const filter = { _id: ObjectId(id) };
     const options = { upsert: true };
-    const updateDoc = { $set: order };
+    const updateDoc = { $set: query };
     const result = await orderCollection.updateOne(filter, updateDoc, options);
     res.json(result);
+  });
+
+  app.get("/orders/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { itemid: id };
+    const result = await orderCollection.findOne(query);
+    res.send(result);
   });
 
   app.get("/orders", async (req, res) => {
@@ -77,18 +90,24 @@ client.connect((err) => {
     res.send(result);
   });
 
-  app.get("/orders/:id", async (req, res) => {
-    const id = req.params.id;
-    const query = { itemid: id };
-    // console.log(query);
-    const result = await orderCollection.findOne(query);
-    res.send(result);
+  app.get("/order", async (req, res) => {
+    const email = req.query.email;
+    const query = { email: email };
+    const result = await orderCollection.find(query).toArray();
+    res.json(result);
   });
 
   app.delete("/orders/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await orderCollection.deleteOne(query);
+    res.json(result);
+  });
+
+  app.delete("/order/:email", async (req, res) => {
+    const email = req.params.email;
+    const query = { email: email };
+    const result = await orderCollection.deleteMany(query);
     res.json(result);
   });
 
@@ -130,6 +149,13 @@ client.connect((err) => {
     const options = { upsert: true };
     const updateDoc = { $set: review };
     const result = await reviewCollection.updateOne(filter, updateDoc, options);
+    res.json(result);
+  });
+
+  app.delete("/review/:email", async (req, res) => {
+    const email = req.params.email;
+    const query = { email: email };
+    const result = await reviewCollection.deleteMany(query);
     res.json(result);
   });
 
