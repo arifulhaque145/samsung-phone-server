@@ -47,9 +47,10 @@ client.connect((err) => {
 
   app.put("/users/:id", async (req, res) => {
     const id = req.params.id;
+    const role = req.body;
     const filter = { _id: ObjectId(id) };
     const options = { upsert: true };
-    const updateDoc = { $set: { role: "admin" } };
+    const updateDoc = { $set: role };
     const result = await userCollection.updateOne(filter, updateDoc, options);
     res.json(result);
   });
